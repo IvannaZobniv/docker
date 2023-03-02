@@ -75,33 +75,34 @@ app.listen(PORT, ()=>{
 //     res.end()
 // });
 
-const users = [
-    {
-        name: 'Oleh',
-        age: 19,
-        gender: 'male'
-    },
-    {
-        name: 'Anton',
-        age: 22,
-        gender: 'female'
-    },
-    {
-        name: 'Anya',
-        age: 25,
-        gender: 'female'
-    },
-    {
-        name: 'Ielizavetta',
-        age: 35,
-        gender: 'female'
-    },
-    {
-        name: 'Cocos',
-        age: 70,
-        gender: 'mixed'
-    }
-]
+const users=require('./users.json')
+// const users = [
+//     {
+//         name: 'Oleh',
+//         age: 19,
+//         gender: 'male'
+//     },
+//     {
+//         name: 'Anton',
+//         age: 22,
+//         gender: 'female'
+//     },
+//     {
+//         name: 'Anya',
+//         age: 25,
+//         gender: 'female'
+//     },
+//     {
+//         name: 'Ielizavetta',
+//         age: 35,
+//         gender: 'female'
+//     },
+//     {
+//         name: 'Cocos',
+//         age: 70,
+//         gender: 'mixed'
+//     }
+// ]
 // якщо хочемо отримати всіх юзера
 app.get('/users', (req, res)=>{
     res.json(users);
