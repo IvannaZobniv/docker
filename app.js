@@ -1,88 +1,75 @@
-// const fs= require('fs');
-const fs= require('node:fs');
-// --------------------Методи------------------------
-// fs.readFile('./text.txt',(err, data)=>{
-//     console.log(err,'ERR');
-//     console.log(data.toString());
-// })
-//---------------------------------------------------
-// fs.appendFile('./text.txt','Hello \n',(err)=>{
-//     console.log('ERR',err);
-// })
-//---------------------------------------------------
-// fs.writeFile('./text.txt','WRITE FILE \n',(err)=>{
-//     console.log('ERR',err);
-// })
-//---------------------------------------------------
-// зчитаємо дані з text.txt та перезапишемо як копію в copy.txt
-// fs.readFile('./text.txt',(err, data )=>{
-//     fs.appendFile('./copy.txt',data,(err)=>{
-//         console.log(err);
-//     })
-// })
-//---------------------------------------------------
-// fs.mkdir('./students',(err)=>{
-//     console.log(err);
-// })
-// fs.appendFile('./students/data.json',JSON.stringify({name:'Iva'}),(err)=>{
-//     console.log(err);
-// })
-//---------------------------------------------------
-// fs.truncate('./copy.txt',(err)=>{
-//     console.log(err);
-// })
-//---------------------------------------------------
-// fs.unlink('./copy.txt',(err)=>{
-//     console.log(err);
-// })
-//---------------------------------------------------
-// fs.rmdir('./students',{recursive:true},(err)=>{
-//     console.log(err);
-// })
-//---------------------------------------------------
-// fs.rename('./text.txt', './users.txt',(err)=>{
-//     console.log(err);
-// })
-// fs.rename('./users.txt', './stud/users.txt',(err)=>{
-//     console.log(err);
-// })
-//---------------------------------------------------
-// fs.copyFile('./stud/users.txt','./stud/copy.txt',(err)=>{
-//     console.log(err);
-// })
-//---------------------------------------------------
-// fs.readdir('./stud',(err, files)=>{
-//     console.log(files);
+// -- MODULES --
+
+// const { sayHello } = require('./helper');
 //
-//     for (const fileName of files){
-//         fs.stat(`./stud/${fileName}`,(err, stats)=>{
-//             console.log(`./stud/${fileName}`);
-//             console.log(stats.isDirectory());
+// sayHello();
+
+// -- GLOBAL VARIABLES --
+// const { logToConsole } = require('./test/test')
 //
-//             if (stats.isFile()){
-//                 fs.readFile(`./stud/${fileName}`,(err, data)=>{
-//                     console.log(data.toString());
-//                 })
-//             }
-//         })
-//     }
-// })
-// або такий спосіб
-// fs.readdir('./stud',{withFileTypes:true}, (err, files)=>{
-//     console.log(files);
-//     for (const file of files){
-//         console.log(file.isFile());
-//     }
+// console.log('FROM app.js');
+//
+// console.log(__dirname);
+// console.log(__filename);
+// console.log(process.cwd());
+//
+// logToConsole();
+
+// -- PATH --
+const path = require('path');
+
+// const joinedPath = path.join(__dirname, 'test', 'test.js');
+// console.log(joinedPath);
+
+// const normalizedPath = path.normalize('///test///test2/test.txt');
+// console.log(normalizedPath);
+
+// const resolvedPath = path.resolve('test', 'test.js');
+// console.log(resolvedPath);
+
+// -- OS --
+// const os = require('os');
+//
+// console.log(os.arch());
+// console.log(os.cpus());
+
+// -- FS --
+// const fs = require('fs');
+// const path = require('path');
+
+// fs.writeFile(path.join('test', 'text2.txt'), 'Hello from Okten !!!', (err)=>{
+//   if (err) throw new Error(err.message)
 // })
 
-// --------------------Модулі------------------------
+// fs.readFile(path.join('test', 'text.txt'), (err, data)=>{
+//   if (err) throw new Error(err.message);
+//   console.log(data.toString());
+// })
 
-// const builder = require('./stud/create');
+// fs.appendFile(path.join('test', 'text2.txt'), '\nHello from Okten again!', (err)=>{
+//   if (err) throw new Error();
+// })
+
+// fs.truncate(path.join('test', 'text2.txt'), (err)=>{
+//   if (err) throw new Error();
+// })
+
+// fs.unlink(path.join('test', 'text2.txt'), (err)=>{
+//   if (err) throw new Error();
+// })
+
+// fs.stat(path.join('test'), (err, stats)=>{
+//   if (err) throw new Error();
+//   console.log(stats.isDirectory());
+//   console.log(stats.isFile());
+// })
 //
-// let stud1 = builder.studBuilder('Sonya', 16);
-// console.log(stud1);
-// console.log(stud1.name);
-// console.log(stud1.age);
-
-// let stud1 = builder.fName('Sonya', 16);
-//---------------------------------------------------
+// fs.readdir(path.join('test'), {withFileTypes: true},(err, data)=>{
+//   if (err) throw new Error();
+//   data.forEach(file=>{
+//     console.log(file.isFile());
+//   })
+// })
+// fs.mkdir(path.join('test', 'test2'), (err)=>{
+//   if (err) throw new Error();
+// })
