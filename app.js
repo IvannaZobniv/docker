@@ -1,75 +1,162 @@
-// -- MODULES --
+// -- EVENT --
+// const event = require('node:events');
 
-// const { sayHello } = require('./helper');
+// const eventEmitter = new event();
+// eventEmitter.on('click', (data)=>{
+//   console.log('Click click click');
+//   console.log(data);
+// });
+// // eventEmitter.emit('click',{name:'Anton'})
 //
-// sayHello();
+// eventEmitter.emit('click')
+// eventEmitter.emit('click')
+// eventEmitter.emit('click')
 
-// -- GLOBAL VARIABLES --
-// const { logToConsole } = require('./test/test')
+// eventEmitter.once('clickAndDie', ()=>{
+//   console.log("I'm gonna die after being called");
+// })
+// console.log(eventEmitter.eventNames());
 //
-// console.log('FROM app.js');
+// eventEmitter.emit('clickAndDie');
+// eventEmitter.emit('clickAndDie');
+// eventEmitter.emit('clickAndDie');
+// eventEmitter.emit('clickAndDie');
 //
-// console.log(__dirname);
-// console.log(__filename);
-// console.log(process.cwd());
-//
-// logToConsole();
+// console.log(eventEmitter.eventNames());
 
-// -- PATH --
-const path = require('path');
-
-// const joinedPath = path.join(__dirname, 'test', 'test.js');
-// console.log(joinedPath);
-
-// const normalizedPath = path.normalize('///test///test2/test.txt');
-// console.log(normalizedPath);
-
-// const resolvedPath = path.resolve('test', 'test.js');
-// console.log(resolvedPath);
-
-// -- OS --
-// const os = require('os');
-//
-// console.log(os.arch());
-// console.log(os.cpus());
-
-// -- FS --
+// -- STREAMS --
 // const fs = require('fs');
-// const path = require('path');
-
-// fs.writeFile(path.join('test', 'text2.txt'), 'Hello from Okten !!!', (err)=>{
-//   if (err) throw new Error(err.message)
-// })
-
-// fs.readFile(path.join('test', 'text.txt'), (err, data)=>{
-//   if (err) throw new Error(err.message);
-//   console.log(data.toString());
-// })
-
-// fs.appendFile(path.join('test', 'text2.txt'), '\nHello from Okten again!', (err)=>{
-//   if (err) throw new Error();
-// })
-
-// fs.truncate(path.join('test', 'text2.txt'), (err)=>{
-//   if (err) throw new Error();
-// })
-
-// fs.unlink(path.join('test', 'text2.txt'), (err)=>{
-//   if (err) throw new Error();
-// })
-
-// fs.stat(path.join('test'), (err, stats)=>{
-//   if (err) throw new Error();
-//   console.log(stats.isDirectory());
-//   console.log(stats.isFile());
-// })
+// const path = require("path");
 //
-// fs.readdir(path.join('test'), {withFileTypes: true},(err, data)=>{
-//   if (err) throw new Error();
-//   data.forEach(file=>{
-//     console.log(file.isFile());
-//   })
-// })
-// fs.mkdir(path.join('test', 'test2'), (err)=>{
-//   if (err) throw new Error();
-// })
+// const readStream = fs.createReadStream(path.join('test', 'text.txt'),{encoding:'utf8'});
+// const readStream = fs.createReadStream(path.join('test', 'text.txt'),{highWaterMark:128*1024});
+// const writeStream = fs.createWriteStream(path.join('test', 'text2.txt'))
+
+// read, write, duplex, transform --- types of streams !!!
+
+// readStream.on('data', (chunk) => {
+//   writeStream.write(chunk);
+//   console.log(chunk);
+// });
+
+// const handleError = () => {
+//   console.error('ERROR!!!');
+//   readStream.destroy();
+//   writeStream.end('ERROR WHILE READING FILE');
+// }
+//
+// readStream
+//   .on('error', handleError)
+//   .pipe(writeStream)
+//   .on('error', handleError);
+
+// -- EXPRESS --
+
+const express = require('express');
+//
+const app = express();
+//
+// app.use(express.json());
+
+const PORT = 5100;
+app.listen(PORT, ()=>{
+    console.log(`Server has started on PORT ${PORT} 🚀🚀🚀`);
+});
+
+
+// app.post()
+// app.put()
+// app.patch()
+// app.delete()
+
+// app.get('/welcome', (req, res)=>{
+//     console.log('WELCOME!!!!');
+//     res.send('WELCOME');
+//     res.end()
+// });
+
+const users = [
+    {
+        name: 'Oleh',
+        age: 19,
+        gender: 'male'
+    },
+    {
+        name: 'Anton',
+        age: 22,
+        gender: 'female'
+    },
+    {
+        name: 'Anya',
+        age: 25,
+        gender: 'female'
+    },
+    {
+        name: 'Ielizavetta',
+        age: 35,
+        gender: 'female'
+    },
+    {
+        name: 'Cocos',
+        age: 70,
+        gender: 'mixed'
+    }
+]
+// якщо хочемо отримати всіх юзера
+app.get('/users', (req, res)=>{
+    res.json(users);
+});
+
+// якщо хочемо отримати одного юзера (фільтрація)
+app.get('/users/:userId', (req, res)=>{
+    const { userId } = req.params;
+    const user = users[+userId-1];
+
+    res.json(user);
+});
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
+
+// створити юзера
+app.post('/users', (req, res)=>{
+    const body = req.body;
+    users.push(body);
+    console.log(body);
+
+    res.status(201).json({
+        message: 'User created!'
+    })
+})
+//якщо ми хочемо оновити юзера
+app.put('/users/:userId', (req, res)=>{
+    const { userId } = req.params;
+    const updatedUser = req.body;
+
+    users[+userId] = updatedUser;
+
+    res.status(200).json({
+        message: 'User updated',
+        data: users[+userId]
+    })
+})
+//якщо ми хочемо видалити юзера
+app.delete('/users/:userId', (req, res)=>{
+    const { userId } = req.params;
+
+    users.splice(+userId, 1);
+
+    res.status(200).json({
+        message: 'User deleted',
+    })
+})
+
+
+
+
+
+
+
+
+
+
