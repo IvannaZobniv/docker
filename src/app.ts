@@ -1,99 +1,72 @@
-import fs from "fs"
 import express, { Request, Response } from "express";
+import mongoose from "mongoose";
+
+import { User } from "./models/User.model";
+import { IUser } from "./types/user.types";
 
 const app = express();
-//
-// app.use(express.json());
-
-const PORT = 5100;
-app.listen(PORT, () => {
-  console.log(`Server has started on PORT ${PORT} 🚀🚀🚀`);
-});
-
-// app.post()
-// app.put()
-// app.patch()
-// app.delete()
-
-// app.get('/welcome', (req, res)=>{
-//     console.log('WELCOME!!!!');
-//     res.send('WELCOME');
-//     res.end()
-// });
-
-const users = [
-  {
-    name: "Oleh",
-    age: 19,
-    gender: "male",
-  },
-  {
-    name: "Anton",
-    age: 22,
-    gender: "female",
-  },
-  {
-    name: "Anya",
-    age: 25,
-    gender: "female",
-  },
-  {
-    name: "Ilizavetta",
-    age: 35,
-    gender: "female",
-  },
-  {
-    name: "Cocos",
-    age: 70,
-    gender: "mixed",
-  },
-];
-
-// якщо хочемо отримати всіх юзера
-app.get("/users", (req: Request, res: Response) => {
-  res.json(users);
-});
-
-// якщо хочемо отримати одного юзера (фільтрація)
-app.get("/users/:userId", (req, res) => {
-  const { userId } = req.params;
-  const user = users[+userId - 1];
-
-  res.json(user);
-});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// створити юзера
-app.post("/users", (req, res) => {
+app.get(
+  "/users",
+  async (req: Request, res: Response): Promise<Response<IUser[]>> => {
+    const users = await User.find();
+
+    return res.json(users);
+  }
+);
+
+app.get(
+  "/users/:userId",
+  async (req: Request, res: Response): Promise<Response<IUser>> => {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+
+    return res.json(user);
+  }
+);
+
+app.post("/users", async (req: Request, res: Response) => {
   const body = req.body;
-  users.push(body);
-  console.log(body);
+  const user = await User.create(body);
 
   res.status(201).json({
     message: "User created!",
+    data: user,
   });
 });
-//якщо ми хочемо оновити юзера
-app.put("/users/:userId", (req, res) => {
-  const { userId } = req.params;
-  const updatedUser = req.body;
 
-  users[+userId] = updatedUser;
+app.put("/users/:userId", async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const user = req.body;
+
+  const updatedUser = await User.updateOne({ _id: userId }, { ...user });
 
   res.status(200).json({
     message: "User updated",
-    data: users[+userId],
+    data: updatedUser,
   });
 });
-//якщо ми хочемо видалити юзера
-app.delete("/users/:userId", (req, res) => {
+
+app.delete("/users/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;
 
-  users.splice(+userId, 1);
+  await User.deleteOne({ _id: userId });
 
   res.status(200).json({
     message: "User deleted",
   });
+});
+
+app.get("/welcome", (req: Request, res: Response) => {
+  res.send("WELCOME");
+});
+
+const PORT = 5100;
+
+app.listen(PORT, () => {
+  mongoose.connect("mongodb://127.0.0.1:27017/mongoDb");
+  console.log(`Server has started on PORT ${PORT} 🚀🚀🚀`);
 });
