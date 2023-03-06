@@ -1,155 +1,123 @@
-// -- EVENT --
-// const event = require('node:events');
-
-// const eventEmitter = new event();
-// eventEmitter.on('click', (data)=>{
-//   console.log('Click click click');
-//   console.log(data);
-// });
-// // eventEmitter.emit('click',{name:'Anton'})
-//
-// eventEmitter.emit('click')
-// eventEmitter.emit('click')
-// eventEmitter.emit('click')
-
-// eventEmitter.once('clickAndDie', ()=>{
-//   console.log("I'm gonna die after being called");
-// })
-// console.log(eventEmitter.eventNames());
-//
-// eventEmitter.emit('clickAndDie');
-// eventEmitter.emit('clickAndDie');
-// eventEmitter.emit('clickAndDie');
-// eventEmitter.emit('clickAndDie');
-//
-// console.log(eventEmitter.eventNames());
-
-// -- STREAMS --
-// const fs = require('fs');
-// const path = require("path");
-//
-// const readStream = fs.createReadStream(path.join('test', 'text.txt'),{encoding:'utf8'});
-// const readStream = fs.createReadStream(path.join('test', 'text.txt'),{highWaterMark:128*1024});
-// const writeStream = fs.createWriteStream(path.join('test', 'text2.txt'))
-
-// read, write, duplex, transform --- types of streams !!!
-
-// readStream.on('data', (chunk) => {
-//   writeStream.write(chunk);
-//   console.log(chunk);
-// });
-
-// const handleError = () => {
-//   console.error('ERROR!!!');
-//   readStream.destroy();
-//   writeStream.end('ERROR WHILE READING FILE');
-// }
-//
-// readStream
-//   .on('error', handleError)
-//   .pipe(writeStream)
-//   .on('error', handleError);
-
-// -- EXPRESS --
-
 const express = require('express');
-//
+const service = require('./fs.service');
+
 const app = express();
-//
-// app.use(express.json());
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
 const PORT = 5100;
 app.listen(PORT, ()=>{
     console.log(`Server has started on PORT ${PORT} 🚀🚀🚀`);
 });
+app.get('/welcome', (req, res)=>{
+    // console.log('WELCOME!!!!');
+    res.send('WELCOME');
+    // res.end()
+});
 
-
-// app.post()
-// app.put()
-// app.patch()
-// app.delete()
-
-// app.get('/welcome', (req, res)=>{
-//     console.log('WELCOME!!!!');
-//     res.send('WELCOME');
-//     res.end()
-// });
-
-const users=require('./users.json')
-// const users = [
-//     {
-//         name: 'Oleh',
-//         age: 19,
-//         gender: 'male'
-//     },
-//     {
-//         name: 'Anton',
-//         age: 22,
-//         gender: 'female'
-//     },
-//     {
-//         name: 'Anya',
-//         age: 25,
-//         gender: 'female'
-//     },
-//     {
-//         name: 'Ielizavetta',
-//         age: 35,
-//         gender: 'female'
-//     },
-//     {
-//         name: 'Cocos',
-//         age: 70,
-//         gender: 'mixed'
-//     }
-// ]
-// якщо хочемо отримати всіх юзера
-app.get('/users', (req, res)=>{
+// якщо хочемо отримати всіх юзерів
+app.get('/users', async (req, res) => {
+    const users = await service.reader();
     res.json(users);
 });
 
-// якщо хочемо отримати одного юзера (фільтрація)
-app.get('/users/:userId', (req, res)=>{
-    const { userId } = req.params;
-    const user = users[+userId-1];
+// створити юзера
+// app.post('/users', async(req, res)=>{
+//     const {name, age ,gender} = req.body;
+//
+//     const users = await service.reader();
+//     const newUser ={
+//         id:users[users.length-1]?.id+1 || 1,
+//         name,
+//         age ,
+//         gender,
+//     }
+//
+//     users.push(newUser);
+//     await service.writer(users);
+//
+//     res.status(201).json(newUser);
+// })
 
+
+// створити юзера з валідацією
+app.post('/users', async(req, res)=>{
+    const {name, age ,gender} = req.body;
+
+    if (!name||name.length <= 2){
+        res.status(400).json('Short name');
+    }
+    if (!age|| !Number.isInteger(age)|| Number.isNaN(age)){
+        res.status(400).json('Is not a number');
+    }
+    if (!gender|| (gender !== 'male'&& gender !== 'female')){
+        res.status(400).json('There is no such gender!');
+    }
+    const users = await service.reader();
+    const newUser ={
+        id:users[users.length-1]?.id+1 || 1,
+        name,
+        age ,
+        gender,
+    }
+    users.push(newUser);
+    await service.writer(users);
+    res.status(201).json(newUser);
+})
+
+// якщо хочемо отримати одного юзера (фільтрація)
+app.get('/users/:userId', async (req, res)=>{
+    const { userId } = req.params;
+
+    const users = await service.reader();
+    const user = users.find((user) => user.id === + userId);
+
+    if (!user){
+        res.status(422).json(`User with id: ${userId} not found`);
+    }
     res.json(user);
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
-
-// створити юзера
-app.post('/users', (req, res)=>{
-    const body = req.body;
-    users.push(body);
-    console.log(body);
-
-    res.status(201).json({
-        message: 'User created!'
-    })
-})
 //якщо ми хочемо оновити юзера
-app.put('/users/:userId', (req, res)=>{
+app.put('/users/:userId', async (req, res)=>{
     const { userId } = req.params;
-    const updatedUser = req.body;
+    const {name, age, gender} = req.body;
 
-    users[+userId] = updatedUser;
+    if (name && name.length <= 2){
+        res.status(400).json('Short name');
+    }
+    if (age && !Number.isInteger(age)|| Number.isNaN(age)){
+        res.status(400).json('Is not a number');
+    }
+    if (gender && (gender !== 'male'&& gender !== 'female')){
+        res.status(400).json('There is no such gender!');
+    }
 
-    res.status(200).json({
-        message: 'User updated',
-        data: users[+userId]
-    })
-})
+    const users = await service.reader();
+    const index = users.findIndex((user)=>user.id === +userId);
+
+    if(index ===-1){
+        res.status(422).json(`User with id: ${userId} not found`);
+    }
+    users[index] = {...users[index],...req.body};
+    await service.writer(users)
+    res.status(201).json(users[index])
+});
+
 //якщо ми хочемо видалити юзера
-app.delete('/users/:userId', (req, res)=>{
+app.delete('/users/:userId', async (req, res)=>{
     const { userId } = req.params;
 
-    users.splice(+userId, 1);
+    const users = await service.reader();
+    const index = users.findIndex((user)=>user.id === +userId);
+    if(index ===-1){
+        res.status(422).json(`User with id: ${userId} not found`);
+    }
+    users.splice(index, 1);
+    await service.writer(users);
 
-    res.status(200).json({
-        message: 'User deleted',
-    })
+    res.sendStatus(204)
 })
 
 
