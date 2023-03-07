@@ -1,6 +1,4 @@
 /.idea/
 /node_modules/
 /.env
-/dist/
-/dist/models/
-/dist/types/
+
