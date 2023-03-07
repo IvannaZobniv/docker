@@ -47,6 +47,6 @@ app.get("/welcome", (req, res) => {
 });
 const PORT = 5100;
 app.listen(PORT, () => {
-    mongoose_1.default.connect("mongodb://127.0.0.1:27017/mongoDb");
+    mongoose_1.default.connect("mongodb://127.0.0.1:27017/test");
     console.log(`Server has started on PORT ${PORT} 🚀🚀🚀`);
 });
