@@ -23,6 +23,6 @@ app.use((err: IError, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.listen(configs.PORT, () => {
-  mongoose.connect(configs.DB_URL);
+  mongoose.connect(configs.DB_URL).then();
   console.log(`Server has started on PORT ${configs.PORT} 🚀🚀🚀`);
 });

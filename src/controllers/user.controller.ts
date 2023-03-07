@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 
 import { User } from "../models/User.model";
 import { userService } from "../services/user.service";
-import { ICommonResponse, IUser } from "../types/user.types";
+import { ICommonResponse, IMessage } from "../types/common.types";
+import { IUser } from "../types/user.types";
 
 class UserController {
   public async getAll(
@@ -63,6 +64,23 @@ class UserController {
       return res.status(200).json({
         message: "User updated",
         data: updatedUser,
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async delete(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IMessage>> {
+    try {
+      const { userId } = req.params;
+
+      await User.deleteOne({ _id: userId });
+
+      return res.status(200).json({
+        message: "User deleted",
       });
     } catch (e) {
       next(e);
