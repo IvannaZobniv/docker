@@ -12,13 +12,13 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/users", user_router_1.userRouter);
 app.use((err, req, res, next) => {
-    const status = err.status;
+    const status = err.status || 500;
     return res.status(status).json({
         message: err.message,
         status,
     });
 });
-app.listen(config_1.configs.PORT, () => {
-    mongoose_1.default.connect(config_1.configs.DB_URL);
+app.listen(config_1.configs.PORT, async () => {
+    await mongoose_1.default.connect(config_1.configs.DB_URL);
     console.log(`Server has started on PORT ${config_1.configs.PORT} 🚀🚀🚀`);
 });
